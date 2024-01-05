@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: count
+  namespace: rketst
+  labels:
+    workload.user.cattle.io/workloadselector: apps.deployment-rketst-count
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      workload.user.cattle.io/workloadselector: apps.deployment-rketst-count
+  template:
+    metadata:
+      labels:
+        workload.user.cattle.io/workloadselector: apps.deployment-rketst-count
+    spec:
+      containers:
+        - name: count
+          image: harbor.vghtpe.gov.tw/poc_test/count:latest
+          ports:
+            - name: count
+              containerPort: 8080
+          env:
+            - name: TZ
+              value: CST-8
+          envFrom:
+            - secretRef:
+                name: datasource
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /APData/count/
+              name: vol-count
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+      volumes:
+        - name: vol-count
+          nfs:
+            path: /home/nfs-test/count/
+            server: 10.100.130.203
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: count
+  namespace: rketst
+spec:
+  ports:
+    - name: count
+      port: 8080
+      targetPort: 8080
+  selector:
+    workload.user.cattle.io/workloadselector: apps.deployment-rketst-count
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: count
+  namespace: rketst
+spec:
+  rules:
+    - host: rkestg.vghtpe.gov.tw
+      http:
+        paths:
+          - path: /count
+            pathType: Prefix
+            backend:
+              service:
+                name: count
+                port:
+                  number: 8080
