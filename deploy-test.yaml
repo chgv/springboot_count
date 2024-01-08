@@ -1,25 +1,26 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: count
   namespace: rketst
   labels:
-    workload.user.cattle.io/workloadselector: apps.deployment-rketst-count
+    workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count
 spec:
-  replicas: 1
+  serviceName: count
+  replicas: 3
   selector:
     matchLabels:
-      workload.user.cattle.io/workloadselector: apps.deployment-rketst-count
+      workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count
   template:
     metadata:
       labels:
-        workload.user.cattle.io/workloadselector: apps.deployment-rketst-count
+        workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count
     spec:
       containers:
         - name: count
           image: harbor.vghtpe.gov.tw/poc_test/count:latest
           ports:
-            - name: count
+            - name: http
               containerPort: 8080
           env:
             - name: TZ
@@ -41,9 +42,7 @@ spec:
           nfs:
             path: /home/nfs-test/count/
             server: 10.100.130.203
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
+  volumeClaimTemplates: []
 ---
 apiVersion: v1
 kind: Service
@@ -52,11 +51,11 @@ metadata:
   namespace: rketst
 spec:
   ports:
-    - name: count
+    - name: http
       port: 8080
-      targetPort: 9080
+      targetPort: 8080
   selector:
-    workload.user.cattle.io/workloadselector: apps.deployment-rketst-count
+    workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count
   type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
