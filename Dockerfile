@@ -6,6 +6,7 @@ ADD server.xml /usr/local/tomcat/conf
 ADD setenv.sh /usr/local/tomcat/bin
 RUN chmod +x /usr/local/tomcat/bin/setenv.sh
 
-EXPOSE 9080
+EXPOSE 8080
+EXPOSE 8443
 CMD ["catalina.sh", "run"]
 
