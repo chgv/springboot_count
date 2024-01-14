@@ -34,10 +34,6 @@
       <Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="true">
 
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" pattern="%h %l %u %t &quot;%r&quot; %s %b" prefix="localhost_access_log" suffix=".txt"/>
-
-     <Context docBase="emp" path="/emp" reloadable="true" source="org.eclipse.jst.jee.server:emp">
-	     <Resource auth="Container" driverClassName="com.mysql.cj.jdbc.Driver" maxActive="1" maxIdle="1" maxWait="1" name="jdbc/mysql" type="javax.sql.DataSource" password="${dbpassword}" url="jdbc:mysql://10.100.130.201:3306/users_database?characterEncoding=utf-8" username="${dbusername}"/>
-	</Context>
      
 	</Host>
     </Engine>
