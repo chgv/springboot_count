@@ -100,7 +100,7 @@
         </SSLHostConfig>
     </Connector>
     -->
-	<Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" SSLEnabled="true"
+	<Connector port="8444" protocol="org.apache.coyote.http11.Http11NioProtocol" SSLEnabled="true"
            maxThreads="150" scheme="https" secure="true"
            clientAuth="false" sslProtocol="TLS"
            keystoreFile="/usr/local/tomcat/conf/server.p12" keystorePass="123456"

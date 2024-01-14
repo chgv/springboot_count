@@ -11,5 +11,5 @@ RUN chmod +x /usr/local/tomcat/bin/setenv.sh
 COPY *.jar /usr/local/tomcat/lib
 
 EXPOSE 8080
-EXPOSE 8443
+EXPOSE 8444
 CMD ["catalina.sh", "run"]
