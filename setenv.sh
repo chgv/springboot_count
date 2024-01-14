@@ -1,1 +1,1 @@
-export JAVA_OPTS="-Ddbpassword=${COUNT_DB_PWD} -Ddbusername=${COUNT_DB_USR}"
+export JAVA_OPTS="$JAVA_OPTS -Ddbpassword=${EMP_DB_PWD} -Ddbusername=${EMP_DB_USR} -Dhostname=$(hostname)"

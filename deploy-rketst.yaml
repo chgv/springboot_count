@@ -1,46 +1,46 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: count
+  name: count-rketst
   namespace: rketst
   labels:
-    workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count
+    workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count-rketst
 spec:
   serviceName: count
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count
+      workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count-rketst
   template:
     metadata:
       labels:
-        workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count
+        workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count-rketst
     spec:
       containers:
         - name: count
-          image: harbor.vghtpe.gov.tw/poc_test/count:latest
+          image: harbor.vghtpe.gov.tw/rketst/count:latest
           ports:
-            - name: http
-              containerPort: 8080
+            - name: https
+              containerPort: 8443
           env:
             - name: TZ
               value: CST-8
           envFrom:
             - secretRef:
-                name: datasource
+                name: count-datasource
           imagePullPolicy: Always
           volumeMounts:
-            - mountPath: /APData/count/
-              name: vol-count
+            - mountPath: /APData
+              name: vol
           securityContext:
             allowPrivilegeEscalation: false
             privileged: false
             readOnlyRootFilesystem: false
             runAsNonRoot: false
       volumes:
-        - name: vol-count
+        - name: vol
           nfs:
-            path: /home/nfs-test/count/
+            path: /home/nfs-test
             server: 10.100.130.203
   volumeClaimTemplates: []
 ---
@@ -51,11 +51,11 @@ metadata:
   namespace: rketst
 spec:
   ports:
-    - name: http
-      port: 8080
-      targetPort: 8080
+    - name: https
+      port: 8443
+      targetPort: 8443
   selector:
-    workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count
+    workload.user.cattle.io/workloadselector: apps.statefulset-rketst-count-rketst
   type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
@@ -63,15 +63,24 @@ kind: Ingress
 metadata:
   name: count
   namespace: rketst
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-ssl-secret: "rketst/tomcat"
+    nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
 spec:
   rules:
     - host: rketst.vghtpe.gov.tw
       http:
         paths:
-          - path: /count
+          - path: /count/count
             pathType: Prefix
             backend:
               service:
                 name: count
                 port:
-                  number: 8080
+                  number: 8443
+  tls:
+    - hosts:
+        - rketst.vghtpe.gov.tw
+      secretName: test
+
